@@ -60,7 +60,7 @@ hammer.on('pinchstart', function(e) {
 });
 
 hammer.on('pinchmove', function(e) {
-    scale = Math.max(1, Math.min(currentScale * e.scale, 5)); // Allow to scale between 1x and 5x
+    scale = Math.max(.2, Math.min(currentScale * e.scale, 5)); // Allow to scale between 1x and 5x
     applyTransform();
 });
 
