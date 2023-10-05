@@ -83,5 +83,6 @@ hammer.on('panend', function() {
 });
 
 function applyTransform() {
-    fgImage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+    fgImage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale}) rotate(${rotation}deg)`;
 }
+
