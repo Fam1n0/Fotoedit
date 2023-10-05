@@ -4,6 +4,13 @@ const opacityRange = document.getElementById('opacityRange');
 const visibilityRange = document.getElementById('visibilityRange');
 const bgImage = document.getElementById('bgImage');
 const fgImage = document.getElementById('fgImage');
+const rotationRange = document.getElementById('rotationRange');
+let rotation = 0; // To keep track of the rotation value
+
+rotationRange.addEventListener('input', function() {
+    rotation = this.value;
+    applyTransform();
+});
 
 bgInput.addEventListener('change', function() {
     const file = this.files[0];
