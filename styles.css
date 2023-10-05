@@ -1,0 +1,19 @@
+#imageContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#bgImage, #fgImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    height: auto;
+    display: none;
+}
+
+#fgImage {
+    touch-action: none;
+}
