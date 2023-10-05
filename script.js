@@ -38,12 +38,10 @@ opacityRange.addEventListener('input', function() {
 });
 
 visibilityRange.addEventListener('input', function() {
-    const value = this.value * 100;
-    fgImage.style.clipPath = `inset(0% ${100-value}% ${100-value}% 0%)`;
+    const value = (1 - this.value) * 50; // Convert the slider value to percentage
+    fgImage.style.clipPath = `inset(${value}% ${value}% ${value}% ${value}%)`;
 });
 
-// TODO: Add pinch & drag functionality using a library like Hammer.js
-// ... [the rest of your code]
 
 const hammer = new Hammer(fgImage);
 
