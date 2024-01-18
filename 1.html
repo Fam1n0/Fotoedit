@@ -17,8 +17,7 @@
             top: 0;
             left: 0;
             max-width: 100%;
-            height: auto;
-            display: none;
+            max-height: 100%;
         }
 
         #fgImage {
@@ -37,16 +36,99 @@
 <button id="saveButton">Save Image</button>
 
 <div id="imageContainer">
-    <img id="bgImage">
-    <img id="fgImage">
+    <img id="bgImage" style="display: none;">
+    <img id="fgImage" style="display: none;">
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script>
-// Existing JavaScript for image manipulation...
+const bgInput = document.getElementById('bgInput');
+const fgInput = document.getElementById('fgInput');
+const opacityRange = document.getElementById('opacityRange');
+const visibilityRange = document.getElementById('visibilityRange');
+const bgImage = document.getElementById('bgImage');
+const fgImage = document.getElementById('fgImage');
+const rotationRange = document.getElementById('rotationRange');
+let rotation = 0; // To keep track of the rotation value
 
-// Add event listener to save button
-document.getElementById('saveButton').addEventListener('click', saveImage);
+rotationRange.addEventListener('input', function() {
+    rotation = this.value;
+    applyTransform();
+});
+
+bgInput.addEventListener('change', function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = function() {
+        bgImage.src = reader.result;
+        bgImage.style.display = "block";
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+});
+
+fgInput.addEventListener('change', function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = function() {
+        fgImage.src = reader.result;
+        fgImage.style.display = "block";
+    }
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+});
+
+opacityRange.addEventListener('input', function() {
+    fgImage.style.opacity = this.value;
+});
+
+visibilityRange.addEventListener('input', function() {
+    const value = (1 - this.value) * 50; // Convert the slider value to percentage
+    fgImage.style.clipPath = `inset(${value}% ${value}% ${value}% ${value}%)`;
+});
+
+
+const hammer = new Hammer(fgImage);
+
+let scale = 1;
+let currentScale = 1;
+let posX = 0;
+let posY = 0;
+let lastPosX = 0;
+let lastPosY = 0;
+
+hammer.get('pinch').set({ enable: true });
+hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+hammer.on('pinchstart', function(e) {
+    currentScale = scale ? scale : 1; // save the current scale as start point
+});
+
+hammer.on('pinchmove', function(e) {
+    scale = Math.max(.2, Math.min(currentScale * e.scale, 5)); // Allow to scale between 1x and 5x
+    applyTransform();
+});
+
+hammer.on('panmove', function(e) {
+    posX = e.deltaX + lastPosX;
+    posY = e.deltaY + lastPosY;
+    applyTransform();
+});
+
+hammer.on('panend', function() {
+    lastPosX = posX;
+    lastPosY = posY;
+});
+
+function applyTransform() {
+    fgImage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale}) rotate(${rotation}deg)`;
+}
 
 // Function to draw images on canvas and save
 function saveImage() {
@@ -59,13 +141,11 @@ function saveImage() {
     canvas.height = container.offsetHeight;
 
     // Draw the background image
-    let bgImage = document.getElementById('bgImage');
     if (bgImage.src) {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
     }
 
     // Draw the foreground image with transformations
-    let fgImage = document.getElementById('fgImage');
     if (fgImage.src) {
         ctx.save();
         ctx.translate(posX + fgImage.width * scale / 2, posY + fgImage.height * scale / 2);
@@ -92,6 +172,9 @@ function downloadImage(dataURL, filename) {
     a.click();
     document.body.removeChild(a);
 }
+
+// Add event listener to save button
+document.getElementById('saveButton').addEventListener('click', saveImage);
 </script>
 </body>
 </html>
