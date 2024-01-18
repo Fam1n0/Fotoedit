@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Manipulator</title>
+    <style>
+        #imageContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #bgImage, #fgImage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        #fgImage {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+
+<input type="file" id="bgInput" accept="image/*">
+<input type="file" id="fgInput" accept="image/*">
+
+<label>Opacity: <input type="range" id="opacityRange" min="0" max="1" step="0.01" value="1"></label>
+<label>Visibility: <input type="range" id="visibilityRange" min="0" max="1" step="0.01" value="1"></label>
+<label>Rotation: <input type="range" id="rotationRange" min="0" max="360" value="0"></label>
+<button id="saveButton">Save Image</button>
+
+<div id="imageContainer">
+    <img id="bgImage">
+    <img id="fgImage">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script>
+// Existing JavaScript for image manipulation...
+
+// Add event listener to save button
+document.getElementById('saveButton').addEventListener('click', saveImage);
+
+// Function to draw images on canvas and save
+function saveImage() {
+    // Create a canvas
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    let container = document.getElementById('imageContainer');
+
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+
+    // Draw the background image
+    let bgImage = document.getElementById('bgImage');
+    if (bgImage.src) {
+        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Draw the foreground image with transformations
+    let fgImage = document.getElementById('fgImage');
+    if (fgImage.src) {
+        ctx.save();
+        ctx.translate(posX + fgImage.width * scale / 2, posY + fgImage.height * scale / 2);
+        ctx.scale(scale, scale);
+        ctx.rotate(rotation * Math.PI / 180);
+        ctx.globalAlpha = parseFloat(opacityRange.value);
+        ctx.drawImage(fgImage, -fgImage.width / 2, -fgImage.height / 2);
+        ctx.restore();
+    }
+
+    // Create data URL and download
+    let dataURL = canvas.toDataURL('image/png');
+    let timestamp = new Date().toISOString().replace(/[:\-]|\.\d{3}/g, '');
+    let filename = 'manipulated_image_' + timestamp + '.png';
+    downloadImage(dataURL, filename);
+}
+
+// Function to trigger download
+function downloadImage(dataURL, filename) {
+    let a = document.createElement('a');
+    a.href = dataURL;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+</script>
+</body>
+</html>
